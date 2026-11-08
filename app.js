@@ -17,7 +17,7 @@
 
   function render() {
     const now = new Date();
-    const s = L.weekSummary(state.expenses, state.budget, now);
+    const s = L.weekSummary(state.expenses, state.budget, now, state.startDay);
 
     $('week-text').textContent = L.formatBRL(s.spentCents) + ' de ' + L.formatBRL(s.budgetCents);
     $('bar').classList.toggle('over', s.over);
@@ -33,7 +33,7 @@
     const daysEl = $('days');
     daysEl.textContent = '';
     const todayMs = L.dayStart(now).getTime();
-    L.weekDays(state.expenses, now).forEach((day) => {
+    L.weekDays(state.expenses, now, state.startDay).forEach((day) => {
       const box = document.createElement('div');
       box.className = 'day' + (day.date.getTime() === todayMs ? ' today' : '');
 
@@ -96,7 +96,10 @@
 
   $('gear').addEventListener('click', () => {
     const open = $('settings').classList.toggle('open');
-    if (open) $('budget-input').value = String(state.budget).replace('.', ',');
+    if (open) {
+      $('budget-input').value = String(state.budget).replace('.', ',');
+      $('start-day').value = String(state.startDay);
+    }
   });
 
   $('budget-form').addEventListener('submit', (ev) => {
@@ -110,6 +113,7 @@
     $('budget-input').classList.remove('err');
     $('budget-err').textContent = '';
     state.budget = v;
+    state.startDay = Number($('start-day').value);
     persist();
     $('settings').classList.remove('open');
     render();

@@ -90,11 +90,11 @@ function fakeStorage(initial) {
 }
 
 test('loadState vazio devolve padrao', () => {
-  assert.deepEqual(L.loadState(fakeStorage()), { budget: 250, expenses: [] });
+  assert.deepEqual(L.loadState(fakeStorage()), { budget: 250, startDay: 1, expenses: [] });
 });
 
 test('loadState com JSON corrompido devolve padrao', () => {
-  assert.deepEqual(L.loadState(fakeStorage('{nao e json')), { budget: 250, expenses: [] });
+  assert.deepEqual(L.loadState(fakeStorage('{nao e json')), { budget: 250, startDay: 1, expenses: [] });
 });
 
 test('loadState descarta gastos invalidos e budget invalido', () => {
@@ -114,7 +114,7 @@ test('loadState descarta gastos invalidos e budget invalido', () => {
 
 test('save/load ida e volta', () => {
   const st = fakeStorage();
-  const state = { budget: 300, expenses: [{ id: 'a', amount: 1.5, description: '', ts: 5 }] };
+  const state = { budget: 300, startDay: 3, expenses: [{ id: 'a', amount: 1.5, description: '', ts: 5 }] };
   L.saveState(st, state);
   assert.deepEqual(L.loadState(st), state);
 });
@@ -122,4 +122,32 @@ test('save/load ida e volta', () => {
 test('saveState nao quebra se storage lanca', () => {
   const bad = { setItem() { throw new Error('quota'); }, getItem() { return null; } };
   assert.equal(L.saveState(bad, { budget: 1, expenses: [] }), false);
+});
+
+test('weekStart respeita dia de inicio (0=dom ... 6=sab)', () => {
+  // 2026-11-04 = quarta
+  const q = new Date(2026, 10, 4, 15);
+  assert.equal(L.weekStart(q, 3).getTime(), new Date(2026, 10, 4).getTime());   // semana comeca quarta
+  assert.equal(L.weekStart(q, 0).getTime(), new Date(2026, 10, 1).getTime());   // domingo
+  assert.equal(L.weekStart(q, 5).getTime(), new Date(2026, 9, 30).getTime());   // sexta anterior
+  assert.equal(L.weekStart(q).getTime(), new Date(2026, 10, 2).getTime());      // padrao segunda
+});
+
+test('weekSummary e weekDays usam startDay', () => {
+  const expenses = [ex('a', 10, 4), ex('b', 20, 3), ex('c', 5, 10)];
+  const now = new Date(2026, 10, 5, 9); // quinta
+  // semana comeca quarta 4 -> 4..10 : a e c
+  assert.equal(L.weekSummary(expenses, 250, now, 3).spentCents, 1500);
+  const days = L.weekDays(expenses, now, 3);
+  assert.equal(days[0].date.getTime(), new Date(2026, 10, 4).getTime());
+  assert.equal(days[6].date.getTime(), new Date(2026, 10, 10).getTime());
+});
+
+test('loadState valida startDay', () => {
+  const ok = L.loadState(fakeStorage(JSON.stringify({ budget: 100, startDay: 6, expenses: [] })));
+  assert.equal(ok.startDay, 6);
+  for (const bad of [7, -1, 2.5, 'x', null]) {
+    const s = L.loadState(fakeStorage(JSON.stringify({ budget: 100, startDay: bad, expenses: [] })));
+    assert.equal(s.startDay, 1, String(bad));
+  }
 });

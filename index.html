@@ -29,6 +29,7 @@
   .over-txt { color:var(--bad); font-weight:600; }
   form { display:grid; gap:8px; }
   input { font:inherit; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--txt); width:100%; }
+  select { font:inherit; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--txt); width:100%; }
   input.err { border-color:var(--bad); }
   .err-msg { color:var(--bad); font-size:14px; min-height:18px; }
   .primary { background:var(--ok); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:600; }
@@ -54,8 +55,14 @@
   <label class="mut" for="budget-input">Orçamento semanal (R$)</label>
   <form id="budget-form">
     <input id="budget-input" inputmode="decimal" autocomplete="off">
+    <label class="mut" for="start-day">A semana começa em</label>
+    <select id="start-day">
+      <option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option>
+      <option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option>
+      <option value="0">Domingo</option>
+    </select>
     <div class="err-msg" id="budget-err"></div>
-    <button class="primary" type="submit">Salvar orçamento</button>
+    <button class="primary" type="submit">Salvar</button>
   </form>
 </section>
 

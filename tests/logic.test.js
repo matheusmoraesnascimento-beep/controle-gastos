@@ -151,3 +151,34 @@ test('loadState valida startDay', () => {
     assert.equal(s.startDay, 1, String(bad));
   }
 });
+
+const ymd = (d) => [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('-');
+
+test('monthWeekStarts lista semanas que COMECAM no mes', () => {
+  // nov/2026, segunda: 2, 9, 16, 23, 30
+  assert.deepEqual(L.monthWeekStarts(2026, 10, 1).map(ymd),
+    ['2026-11-2', '2026-11-9', '2026-11-16', '2026-11-23', '2026-11-30']);
+  // out/2026, segunda: 5, 12, 19, 26 (4 semanas)
+  assert.equal(L.monthWeekStarts(2026, 9, 1).length, 4);
+  // nov/2026, domingo: 1, 8, 15, 22, 29
+  assert.deepEqual(L.monthWeekStarts(2026, 10, 0).map(ymd),
+    ['2026-11-1', '2026-11-8', '2026-11-15', '2026-11-22', '2026-11-29']);
+});
+
+test('weekOfMonth numera pela semana de inicio', () => {
+  let w = L.weekOfMonth(new Date(2026, 10, 8), 1); // dom 8/nov, semana seg 2/nov
+  assert.deepEqual([w.index, w.total, w.year, w.month], [1, 5, 2026, 10]);
+  w = L.weekOfMonth(new Date(2026, 10, 1), 1); // dom 1/nov pertence a semana de 26/out
+  assert.deepEqual([w.index, w.total, w.year, w.month], [4, 4, 2026, 9]);
+  w = L.weekOfMonth(new Date(2026, 10, 4), 0); // qua 4/nov, semana dom 1/nov
+  assert.deepEqual([w.index, w.total, w.month], [1, 5, 10]);
+});
+
+test('monthGrid cobre o mes em semanas inteiras', () => {
+  const g = L.monthGrid(2026, 10, 1);
+  assert.equal(g.length, 6);
+  assert.equal(ymd(g[0].start), '2026-10-26');
+  assert.equal(ymd(g[5].start), '2026-11-30');
+  assert.equal(g[0].days.length, 7);
+  assert.equal(ymd(g[5].days[6]), '2026-12-6');
+});

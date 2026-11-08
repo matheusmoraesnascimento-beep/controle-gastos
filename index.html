@@ -39,6 +39,19 @@
   .day.today .day-head { color:var(--ok); }
   .item { display:flex; justify-content:space-between; gap:8px; padding:6px 0 0 8px; font-size:15px; background:none; border:0; width:100%; text-align:left; color:var(--txt); }
   .item .d { color:var(--mut); }
+  .cal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .cal-grid { display:grid; grid-template-columns:30px repeat(7,1fr); gap:3px; font-size:12px; text-align:center; }
+  .cal-wd, .cal-wk { color:var(--mut); font-size:11px; align-self:center; }
+  .cal-wk small { display:block; font-size:9px; }
+  .cal-day { background:none; border:1px solid transparent; border-radius:8px; padding:4px 0; min-height:44px; color:var(--txt);
+             display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+  .cal-day .n { font-weight:600; font-size:14px; }
+  .cal-day .t { font-size:10px; color:var(--ok); }
+  .cal-day.out { opacity:.4; }
+  .cal-day.curweek { background:rgba(22,163,74,.14); }
+  .cal-day.today { border-color:var(--ok); }
+  .cal-day.sel { border-color:var(--txt); }
+  #cal-detail { margin-top:10px; }
   #settings { display:none; }
   #settings.open { display:block; }
   #warn { display:none; color:var(--bad); font-size:14px; margin-bottom:8px; }
@@ -67,7 +80,7 @@
 </section>
 
 <section class="card" id="summary">
-  <div class="mut">Semana</div>
+  <div class="mut" id="week-label">Semana</div>
   <div class="big" id="week-text"></div>
   <div class="bar" id="bar"><div id="bar-fill"></div></div>
   <div id="remaining"></div>
@@ -88,6 +101,16 @@
 </section>
 
 <section class="card" id="days"></section>
+
+<section class="card" id="calendar">
+  <div class="cal-head">
+    <button class="icon-btn" id="cal-prev" aria-label="Mês anterior">‹</button>
+    <strong id="cal-title"></strong>
+    <button class="icon-btn" id="cal-next" aria-label="Próximo mês">›</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div id="cal-detail"></div>
+</section>
 
 <script src="logic.js"></script>
 <script src="app.js"></script>

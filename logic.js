@@ -75,6 +75,34 @@
     return days;
   }
 
+  // Datas (00:00) em que comecam as semanas do mes (month: 0-11).
+  function monthWeekStarts(year, month, startDay = DEFAULT_START_DAY) {
+    const offset = (startDay - new Date(year, month, 1).getDay() + 7) % 7;
+    const out = [];
+    for (let d = new Date(year, month, 1 + offset); d.getMonth() === month; d = addDays(d, 7)) out.push(d);
+    return out;
+  }
+
+  // Semana pertence ao mes em que COMECA. index 1-based.
+  function weekOfMonth(date, startDay = DEFAULT_START_DAY) {
+    const start = weekStart(date, startDay);
+    const year = start.getFullYear(), month = start.getMonth();
+    const starts = monthWeekStarts(year, month, startDay);
+    const index = starts.findIndex((s) => s.getTime() === start.getTime()) + 1;
+    return { index, total: starts.length, year, month, start };
+  }
+
+  // Semanas inteiras que cobrem o mes, para desenhar o calendario.
+  function monthGrid(year, month, startDay = DEFAULT_START_DAY) {
+    const first = weekStart(new Date(year, month, 1), startDay);
+    const lastStart = weekStart(new Date(year, month + 1, 0), startDay);
+    const weeks = [];
+    for (let s = first; s.getTime() <= lastStart.getTime(); s = addDays(s, 7)) {
+      weeks.push({ start: s, days: [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(s, i)) });
+    }
+    return weeks;
+  }
+
   function todayTotalCents(expenses, now) {
     const d = dayStart(now);
     return sumCents(inRange(expenses, d, addDays(d, 1)));
@@ -120,5 +148,5 @@
     }
   }
 
-  return { DEFAULT_BUDGET, DEFAULT_START_DAY, parseAmount, toCents, formatBRL, dayStart, weekStart, sumCents, weekSummary, weekDays, todayTotalCents, STORAGE_KEY, loadState, saveState };
+  return { DEFAULT_BUDGET, DEFAULT_START_DAY, parseAmount, toCents, formatBRL, dayStart, weekStart, sumCents, weekSummary, weekDays, todayTotalCents, monthWeekStarts, weekOfMonth, monthGrid, addDays, STORAGE_KEY, loadState, saveState };
 });
